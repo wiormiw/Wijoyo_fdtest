@@ -1,0 +1,56 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=me@Passw0rdDatabase
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    networks:
+      - app-network
+  
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - app-network
+  
+  papercut:
+    image: changemakerstudiosus/papercut-smtp:latest
+    ports:
+      - 8080:80
+      - 25:25
+
+#   web:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     ports:
+#       - "5000:8080"
+#     environment:
+#       - ASPNETCORE_ENVIRONMENT=Development
+#       - ASPNETCORE_URLS=http://+:8080
+#       - ConnectionStrings__Wijoyo_fdtest=Server=mssql;Database=Wijoyo_fdtest;User Id=sa;Password=me@Passw0rdDatabase;TrustServerCertificate=True;
+#     depends_on:
+#       - mssql
+#     networks:
+#       - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mssql-data:
+  minio-data:
